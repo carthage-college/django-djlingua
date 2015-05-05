@@ -1,0 +1,32 @@
+{% for e in exams %}
+    {% if e.exam %}
+        {% ifchanged %}<h1 style="margin-top:0">Existing placement records for {{e.first}} {{e.last}}</h1>{% endifchanged %}
+        {% ifchanged %}
+            <div class="examcontainer">
+                <div class="examname">
+                    <input type="button" id="delete_{{e.ctgry}}" value="delete" />
+                    <input type="hidden" id="course_{{e.ctgry}}" value="{{e.ctgry}}" />
+                    {{e.exam}}
+                </div>
+                <div class="examstatus">{% if e.remark %}{{e.remark}}{% else %}open{% endif %}</div>
+            </div>
+        {% endifchanged %}
+    {% endif %}
+
+    {% if forloop.last %}
+        <form style="clear:both;" id="addExam">
+            <h1>Add new placement for {{e.first}} {{e.last}}</h1>
+            <input type="hidden" id="selectedStudent1" name="selectedStudent" value="{{e.id}}" />
+            <select name="exam" id="selectedExam1">
+                <option>select level...</option>
+                {% for p in allexams %}<option value="{{p.exam}}">{{p.txt}}</option>{% endfor %}
+            </select>
+            <input type="button" value="add placement record" id="addExamButton"/>
+        </form>
+    {% endif %}
+{% empty %}
+    <p>no matching student found. please check ID #</p>
+{% endfor %}
+
+
+

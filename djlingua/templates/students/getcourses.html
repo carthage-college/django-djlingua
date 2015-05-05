@@ -1,0 +1,5 @@
+<ul id="courseSelectionList">
+    {% for c in courses %}
+         <li id="{{c.exam}}" onclick="selectCourse('{{c.txt}}','{{c.exam}}')">{{c.txt}}</li>
+    {% endfor %}
+</ul>

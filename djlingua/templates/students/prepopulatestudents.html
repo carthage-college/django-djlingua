@@ -1,0 +1,4 @@
+[{% for s in students %}
+    {"id":"{{ s.id }}","label":"{{s.lastname}}, {{s.firstname}}","name":"{{s.lastname}}, {{s.firstname}}<br />ID:{{s.id}} <span>{{s.cmpl_date}}</span>"}
+    {% if not forloop.last %},{%endif%}
+{% endfor %}]

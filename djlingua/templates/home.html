@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="container">
+    <div class="header">Search for student by ID</div>
+    <div id="studentsearch">
+    <form id="searchByStudent">
+        <div id="studentSearchForm">
+            <h2 id="searchTitle">Enter student's ID number</h2>
+            <input type="text" id="student" value="" />
+            <input type="button" id="onesearch" value="find student" />
+        </div>
+        <div id="studentSearchResuts"></div>
+        <div style="clear:both;"></div>
+    </form>
+    </div>
+
+    <div class="header">Browse by placement exams</div>
+    <form id="listByExam">
+        <input type="hidden" name="selectedExam" id="selectedExam" value="" />
+        <div id="examlist">
+            <h2>Select placement exam:</h2>
+            <div id="courseSelection" valign="top">
+                <p></p>
+            </div>
+        </div>
+
+        <div id="studentSelection">
+            <h2 id="studentSecTitle">Select exam to continue</h2>
+            <p id="studentInstructions"></p>
+            <input type="text" id="studentTextField"></input>
+            <img src="https://www.carthage.edu/static/exams/img/ajax-loader.gif" id="loadingImage" style="display:none;"/>
+        </div>
+    </form>
+</div>
+<div id="notice"></div>
+{% endblock %}
+
+{% block extra_style %}
+    <style>
+        #examlist {width:240px; float:left; padding:10px 0 0 0px;}
+        #studentSelection {margin-left:240px; width:500px; position:relative; padding:10px 0 0 0;}
+        #studentTextField {display:none;}
+        #searchByStudent {padding:15px;}
+        #studentSearchForm {float:left; width:300px; margin-top:30px;}
+        .examcontainer{height:25px;}
+        .examname {float:left; width: 220px; margin-left:10px;}
+        .examstatus {color:red;}
+        .ui-widget-header {background:#880000; color:#ff9;font-size:.9em;}
+        .header {font-size:1.4em;font-weight:bold;color:#880000;background:#ff9;padding:4px 30px; border:1px solid #bbb;}
+        .ui-state-default {background:#fff;}
+        h1 {font-size:1.3em; padding:0; margin:10px 0 0 -10px;}
+        h2 {font-size:1em;padding:0;margin:0 0 0 10px;}
+        .ui-widget-overlay {opacity: .80; filter:Alpha(Opacity=80);}
+        #courseSelectionList {margin:0; padding:0 0 0 10px;}
+        #courseSelectionList li {list-style-type:none;}
+        p {margin:0 0 .5em 0;}
+        p#studentInstructions {padding:5px 0 0 15px;}
+        .token-input-list {position:absolute; top:50px; left:10px;}
+        .token-input-dropdown-item span, .token-input-dropdown-item2 span {display:block; float:right;}
+        .token-input-token p {display:inline;}
+        .token-input-token p span {display:block; float:right;}
+        #notice {position:absolute; top:175px; left:300px; background-color:#880000; border:3px solid white; opacity: .80; filter:Alpha(Opacity=80); display:none; color:white; padding:20px; width:300px; z-index:1000;}
+    </style>
+{% endblock %}

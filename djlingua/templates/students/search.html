@@ -1,0 +1,4 @@
+[{% for s in students %}
+    {"id":"{{ s.id }}","label":"{{s.firstname}} {{s.lastname}}","name":"{{s.lastname}}, {{s.firstname}} <span>{% if s.year1 > 2000 %}entering {{s.year1}}{% endif %}{% if s.year1 < 2000 %}current student{% endif %}</span><br />ID:{{s.id}}"}
+    {% if not forloop.last %},{%endif%}
+{% endfor %}]

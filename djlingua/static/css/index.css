@@ -1,0 +1,23 @@
+#selectionMenu {
+	width:750px;
+	height:200px;
+}
+
+#selectionMenu #selectionMenuTable #studentSelection {
+	width:500px;
+}
+#selectionMenu #selectionMenuTable #studentSelection #notice {
+	color:red;
+}
+#selectionMenu #selectionMenuTable #courseSelection {
+	width:330px;
+}
+
+#selectionMenu #showButton {
+	float:right;
+	margin-top:-20px;
+}
+#selectionMenu #addButton {
+	float:right;
+	margin-top:0px;
+}
