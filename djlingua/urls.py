@@ -28,6 +28,6 @@ urlpatterns = patterns('djlingua.students.views',
     ),
     url(
         r'^$',
-        TemplateView.as_view(template_name="forms/index.html")
+        TemplateView.as_view(template_name="home.html")
     )
 )
