@@ -36,13 +36,13 @@ USE_I18N = True
 USE_L10N = True
 DEFAULT_CHARSET = 'utf-8'
 FILE_CHARSET = 'utf-8'
-MEDIA_ROOT = '/data2/django_projects/exams/static/'
-MEDIA_URL = '/exams/static/'
+MEDIA_ROOT = ''
+MEDIA_URL = ''
 STATIC_URL = '/sdjmedia/'
 SERVER_URL = ""
 API_URL = "%s/%s" % (SERVER_URL, "api")
-ROOT_URLCONF = 'exams.urls'
-STATIC_ROOT = '/d2/django_projects/exams/static'
+ROOT_URLCONF = 'djlingua.urls'
+STATIC_ROOT = ''
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -86,11 +86,8 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-# Python dotted path to the WSGI application used by Django's runserver.
-#WSGI_APPLICATION = 'exams.mod_wsgi.application'
-
 TEMPLATE_DIRS = (
-    "/d2/django_projects/exams/templates",
+    "",
 )
 
 INSTALLED_APPS = (
@@ -100,21 +97,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'exams',
+    'djlingua',
 )
-# LDAP Constants
-LDAP_SERVER = ''
-LDAP_PORT = '389'
-LDAP_PROTOCOL = "ldap"
-LDAP_USER = ""
-LDAP_PASS = ""
-# auth backends
 AUTHENTICATION_BACKENDS = (
-    'djauth.ldapBackend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
-LOGIN_URL = '/exams/accounts/login/'
-LOGIN_REDIRECT_URL = '/exams/'
+LOGIN_URL = ''
+LOGIN_REDIRECT_URL = ''
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_DOMAIN=""
 SESSION_COOKIE_NAME =''
