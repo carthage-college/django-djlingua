@@ -103,7 +103,7 @@ def getstudentexams(request):
     return render_to_response(
         'students/studentexams.html', {
             'exams':exams, 'allexams':allexams,
-            'panel':'searchByStudent'
+            'panel':'searchByStudent','cid':studentID
         }, RequestContext(request)
     )
 

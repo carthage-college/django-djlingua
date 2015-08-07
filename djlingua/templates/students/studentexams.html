@@ -16,7 +16,7 @@
     {% if forloop.last %}
         <form style="clear:both;" id="addExam">
             <h1>Add new placement for {{e.first}} {{e.last}}</h1>
-            <input type="hidden" id="selectedStudent1" name="selectedStudent" value="{{e.id}}" />
+            <input type="hidden" id="selectedStudent1" name="selectedStudent" value="{{cid}}" />
             <select name="exam" id="selectedExam1">
                 <option>select level...</option>
                 {% for p in allexams %}<option value="{{p.exam}}">{{p.txt}}</option>{% endfor %}
