@@ -1,14 +1,17 @@
 from django.conf import settings
+from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import Context, RequestContext
-from django.shortcuts import render_to_response
 
 from djzbar.utils.informix import do_sql
 
 import datetime, json
 
+DEBUG=settings.INFORMIX_DEBUG
+EARL=settings.INFORMIX_EARL
+
+
 def getjquerystudents(request):
-    q = request.GET.get("q", "")
+    q = request.GET.get('q', '')
 
     def isInt(value):
         try:
@@ -40,25 +43,28 @@ def getjquerystudents(request):
       'WHERE lower(id_rec.lastname) LIKE lower(\'%s%%\') AND id_rec.id = adm_rec.id AND (adm_rec.plan_enr_yr = \'%s\' OR adm_rec.plan_enr_yr = \'%s\')'
       % (int(sid), int(currentYear), int(currentYear-1), q, int(currentYear), int(currentYear-1), int(sid), int(currentYear),int(currentYear+1),q,int(currentYear),int(currentYear+1)))
 
-    students = do_sql(sqlByIdNumAndName)
-    context = {'students':students,}
-    return render_to_response(
-        'students/search.html', context, RequestContext(request)
+    students = do_sql(sqlByIdNumAndName, key=DEBUG, earl=EARL)
+
+    return render(
+        request, 'students/search.html', {'students':students,}
     )
+
 
 def getcourses(request):
     sql = """
         SELECT exam, txt FROM exam_table WHERE lbl1 = 'PLACEMENT' order by exam
     """
-    courses = do_sql(sql)
-    context = {'courses':courses,}
-    return render_to_response(
-        'students/getcourses.html', context, RequestContext(request)
+    courses = do_sql(sql, key=DEBUG, earl=EARL)
+
+    return render(
+        request, 'students/getcourses.html', {'courses':courses,}
     )
 
 
 def getstudentexams(request):
-    q = request.POST.get("student", None)
+    q = request.POST.get('student', None)
+    if not q:
+        q = request.GET.get('student', None)
     def isInt(value):
         try:
            return int(value)
@@ -68,7 +74,7 @@ def getstudentexams(request):
     # or zero (if a name was entered)
     studentID = isInt(q)
 
-    sqlExamsForStudent = """
+    sqlExamsForStudent = '''
         SELECT
             exam_rec.id, trim(id_rec.firstname) as first,
             trim(id_rec.lastname) as last, exam_rec.ctgry,
@@ -90,22 +96,30 @@ def getstudentexams(request):
         LEFT JOIN
             adm_rec on id_rec.id = adm_rec.id
         WHERE
-            id_rec.id = '{}'
-    """.format(studentID)
+            id_rec.id = "{}"
+    '''.format(studentID)
 
-    exams = do_sql(sqlExamsForStudent)
+    exams = do_sql(sqlExamsForStudent, key=DEBUG, earl=EARL)
 
-    sqlAllExams = """
-        SELECT exam, txt FROM exam_table WHERE lbl1 = 'PLACEMENT' order by exam
-    """
-    allexams = do_sql(sqlAllExams)
+    sqlAllExams = '''
+        SELECT
+            exam, txt
+        FROM
+            exam_table
+        WHERE
+            lbl1 = "PLACEMENT"
+        ORDER BY
+            exam
+    '''
+    allexams = do_sql(sqlAllExams, key=DEBUG, earl=EARL)
 
-    return render_to_response(
-        'students/studentexams.html', {
+    return render(
+        request, 'students/studentexams.html', {
             'exams':exams, 'allexams':allexams,
             'panel':'searchByStudent','cid':studentID
-        }, RequestContext(request)
+        }
     )
+
 
 def prepopulatestudents(request):
     q = request.GET.get("q", "")
@@ -113,17 +127,18 @@ def prepopulatestudents(request):
            'FROM exam_rec, id_rec '
            'WHERE exam_rec.ctgry = \'%s\' AND exam_rec.id = id_rec.id AND (exam_rec.remark != "Courses Added" OR exam_rec.remark IS NULL) '
            'ORDER BY id_rec.lastname DESC, id_rec.firstname DESC' % (q))
-    students = do_sql(sql)
-    return render_to_response(
-        'students/prepopulatestudents.html',
-        {'students':students,},
-        RequestContext(request)
+    students = do_sql(sql, key=DEBUG, earl=EARL)
+
+    return render(
+        request, 'students/prepopulatestudents.html',
+        {'students':students,}
     )
 
+
 def addtoexamrec(request):
-    ctgry = request.POST.get("courseCode", "")
-    studentID = request.POST.get("student", "")
-    panel = request.POST.get("panel", "")
+    ctgry = request.POST.get('courseCode', '')
+    studentID = request.POST.get('student', '')
+    panel = request.POST.get('panel', '')
     # before we add a student-exam record, we check to see if that student
     # already has an exam record for the same language, indicated by the same
     # first letter of ctgry
@@ -145,9 +160,9 @@ def addtoexamrec(request):
             ctgry MATCHES '{}[0-9][0-9][0-9]'
     """.format(studentID, ctgryFirst)
 
-    duplicates = do_sql(sql)
+    duplicates = do_sql(sql, key=DEBUG, earl=EARL)
     numRows=0;
-    duplicateCtgry=""
+    duplicateCtgry=''
     for d in duplicates:
         numRows = numRows+1
         duplicateCtgry=d.ctgry
@@ -158,45 +173,49 @@ def addtoexamrec(request):
             'stat':'success', 'exam':ctgry, 'studentID':studentID,'panel':panel
         }
         sql = ( 'INSERT INTO exam_rec (ctgry, id, yr, cmpl_date, score1, site, sess, score2, score3, score4, score5, score6, self_rpt, conv_exam_no) VALUES (\'%s\', \'%s\', \'0\', \'%s\', \'98\', \'CART\', \'\', \'0\', \'0\', \'0\', \'0\', \'0\', \'N\', \'0\') ' % (ctgry, studentID, NOW))
-        do_sql(sql)
+        do_sql(sql, key=DEBUG, earl=EARL)
     else:
         retVal = {'stat':'failed', 'exam':ctgry, 'studentID':studentID}
     return HttpResponse(
-        json.dumps(retVal), content_type="text/plain; charset=utf-8"
+        json.dumps(retVal), content_type='text/plain; charset=utf-8'
     )
 
 
 def removefromexamrec(request):
 
-    courseCode = request.POST.get("classCode", "")
-    studentID = request.POST.get("studentID", "")
-    panel = request.POST.get("panel", "")
+    courseCode = request.POST.get('classCode', '')
+    studentID = request.POST.get('studentID', '')
+    panel = request.POST.get('panel', '')
 
-    sql = """
+    sql = '''
         DELETE FROM exam_rec WHERE id='{}' AND ctgry='{}'
-    """.format(studentID, courseCode)
-    do_sql(sql)
+    '''.format(studentID, courseCode)
+    do_sql(sql, key=DEBUG, earl=EARL)
 
-    sql = """
-        SELECT firstname, lastname
-        FROM id_rec
-        WHERE id_rec.id = '{}'
-    """.format( studentID)
-    nameSQL = do_sql(sql)
+    sql = '''
+        SELECT
+            firstname, lastname
+        FROM
+            id_rec
+        WHERE
+            id_rec.id = "{}"
+    '''.format( studentID)
+    nameSQL = do_sql(sql
+, key=DEBUG, earl=EARL)
     stuName=""
     for name in nameSQL:
         stuName = name.firstname + " " + name.lastname
 
-    sql = """
-        SELECT txt FROM exam_table WHERE exam = '{}'
-    """.format(courseCode)
-    courseNames = do_sql(sql)
-    courseName=""
+    sql = '''
+        SELECT txt FROM exam_table WHERE exam = "{}"
+    '''.format(courseCode)
+    courseNames = do_sql(sql, key=DEBUG, earl=EARL)
+    courseName=''
     for c in courseNames:
         courseName = c.txt
 
     retVal = {
-        "studentName":stuName, "className":courseName, 'panel':panel
+        'studentName':stuName, 'className':courseName, 'panel':panel
     }
 
     return HttpResponse(
