@@ -26,22 +26,59 @@ def getjquerystudents(request):
     if now.month>=9:
         currentYear = now.year+1
 
-    sqlByIdNumAndName = ('SELECT id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id, trunc(stu_stat_rec.cum_earn_hrs,0) as year1 '
-      'FROM id_rec, stu_stat_rec '
-      'WHERE id_rec.id = \'%s\' AND id_rec.id = stu_stat_rec.id AND (stu_stat_rec.yr = \'%s\' OR stu_stat_rec.yr = \'%s\') '
-      'UNION '
-      'SELECT id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id, trunc(stu_stat_rec.cum_earn_hrs,0) as year1 '
-      'FROM id_rec, stu_stat_rec '
-      'WHERE lower(id_rec.lastname) LIKE lower(\'%s%%\') AND id_rec.id = stu_stat_rec.id AND (stu_stat_rec.yr = \'%s\' OR stu_stat_rec.yr = \'%s\') '
-      'UNION '
-      'SELECT id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id, adm_rec.plan_enr_yr as year1 '
-      'FROM adm_rec, id_rec '
-      'WHERE adm_rec.id = id_rec.id AND adm_rec.id = \'%s\' AND (adm_rec.plan_enr_yr = \'%s\' OR adm_rec.plan_enr_yr = \'%s\' ) '
-      'UNION '
-      'SELECT id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id, adm_rec.plan_enr_yr as year1 '
-      'FROM id_rec, adm_rec '
-      'WHERE lower(id_rec.lastname) LIKE lower(\'%s%%\') AND id_rec.id = adm_rec.id AND (adm_rec.plan_enr_yr = \'%s\' OR adm_rec.plan_enr_yr = \'%s\')'
-      % (int(sid), int(currentYear), int(currentYear-1), q, int(currentYear), int(currentYear-1), int(sid), int(currentYear),int(currentYear+1),q,int(currentYear),int(currentYear+1)))
+    sqlByIdNumAndName = '''
+        SELECT
+            id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id,
+            trunc(stu_stat_rec.cum_earn_hrs,0) as year1
+        FROM
+            id_rec, stu_stat_rec
+        WHERE
+            id_rec.id = "{}"
+        AND
+            id_rec.id = stu_stat_rec.id
+        AND
+            (stu_stat_rec.yr = "{}" OR stu_stat_rec.yr = "{}")
+        UNION
+            SELECT
+                id_rec.firstname, id_rec.lastname, id_rec.fullname, id_rec.id,
+                trunc(stu_stat_rec.cum_earn_hrs,0) as year1
+            FROM
+                id_rec, stu_stat_rec
+            WHERE
+                lower(id_rec.lastname) LIKE lower("{}%%")
+            AND
+                id_rec.id = stu_stat_rec.id
+            AND
+                (stu_stat_rec.yr = "{}" OR stu_stat_rec.yr = "{}")
+        UNION
+            SELECT
+                id_rec.firstname, id_rec.lastname, id_rec.fullname,
+                id_rec.id, adm_rec.plan_enr_yr as year1
+            FROM
+                adm_rec, id_rec
+            WHERE
+                adm_rec.id = id_rec.id
+            AND
+                adm_rec.id = "{}"
+            AND
+                (adm_rec.plan_enr_yr = "{}" OR adm_rec.plan_enr_yr = "{}")
+        UNION
+            SELECT
+                id_rec.firstname, id_rec.lastname, id_rec.fullname,
+                id_rec.id, adm_rec.plan_enr_yr as year1
+            FROM
+                id_rec, adm_rec
+            WHERE
+                lower(id_rec.lastname) LIKE lower("{}%%")
+            AND
+                id_rec.id = adm_rec.id
+            AND
+                (adm_rec.plan_enr_yr = "{}" OR adm_rec.plan_enr_yr = "{}")
+    '''.format(
+        int(sid), int(currentYear), int(currentYear-1), q, int(currentYear),
+        int(currentYear-1), int(sid), int(currentYear),int(currentYear+1),
+        q,int(currentYear),int(currentYear+1)
+    )
 
     students = do_sql(sqlByIdNumAndName, key=DEBUG, earl=EARL)
 
@@ -51,9 +88,14 @@ def getjquerystudents(request):
 
 
 def getcourses(request):
-    sql = """
-        SELECT exam, txt FROM exam_table WHERE lbl1 = 'PLACEMENT' order by exam
-    """
+    sql = '''
+        SELECT
+            exam, txt
+        FROM
+            exam_table
+        WHERE
+            lbl1 = "PLACEMENT" order by exam
+    '''
     courses = do_sql(sql, key=DEBUG, earl=EARL)
 
     return render(
@@ -63,8 +105,6 @@ def getcourses(request):
 
 def getstudentexams(request):
     q = request.POST.get('student', None)
-    if not q:
-        q = request.GET.get('student', None)
     def isInt(value):
         try:
            return int(value)
@@ -122,11 +162,21 @@ def getstudentexams(request):
 
 
 def prepopulatestudents(request):
-    q = request.GET.get("q", "")
-    sql = ('SELECT exam_rec.id, exam_rec.cmpl_date, id_rec.firstname, id_rec.lastname '
-           'FROM exam_rec, id_rec '
-           'WHERE exam_rec.ctgry = \'%s\' AND exam_rec.id = id_rec.id AND (exam_rec.remark != "Courses Added" OR exam_rec.remark IS NULL) '
-           'ORDER BY id_rec.lastname DESC, id_rec.firstname DESC' % (q))
+    q = request.GET.get('q', '')
+    sql = '''
+        SELECT
+            exam_rec.id, exam_rec.cmpl_date, id_rec.firstname, id_rec.lastname
+        FROM
+            exam_rec, id_rec
+        WHERE
+            exam_rec.ctgry = "{}"
+        AND
+            exam_rec.id = id_rec.id
+        AND
+            (exam_rec.remark != "Courses Added" OR exam_rec.remark IS NULL)
+        ORDER BY
+            id_rec.lastname DESC, id_rec.firstname DESC
+    '''.format(q)
     students = do_sql(sql, key=DEBUG, earl=EARL)
 
     return render(
@@ -149,7 +199,7 @@ def addtoexamrec(request):
         SELECT * FROM exam_rec WHERE id = '{}' AND ctgry LIKE '{}%%'
     """.format(studentID, ctgryFirst)
     '''
-    sql = """
+    sql = '''
         SELECT
             *
         FROM
@@ -158,7 +208,7 @@ def addtoexamrec(request):
             id = '{}'
         AND
             ctgry MATCHES '{}[0-9][0-9][0-9]'
-    """.format(studentID, ctgryFirst)
+    '''.format(studentID, ctgryFirst)
 
     duplicates = do_sql(sql, key=DEBUG, earl=EARL)
     numRows=0;
@@ -168,11 +218,21 @@ def addtoexamrec(request):
         duplicateCtgry=d.ctgry
 
     if numRows == 0:
-        NOW = str(datetime.datetime.now().strftime("%m/%d/%Y"))
+        NOW = str(datetime.datetime.now().strftime('%m/%d/%Y'))
         retVal = {
             'stat':'success', 'exam':ctgry, 'studentID':studentID,'panel':panel
         }
-        sql = ( 'INSERT INTO exam_rec (ctgry, id, yr, cmpl_date, score1, site, sess, score2, score3, score4, score5, score6, self_rpt, conv_exam_no) VALUES (\'%s\', \'%s\', \'0\', \'%s\', \'98\', \'CART\', \'\', \'0\', \'0\', \'0\', \'0\', \'0\', \'N\', \'0\') ' % (ctgry, studentID, NOW))
+        sql = '''
+            INSERT INTO
+                exam_rec (
+                    ctgry, id, yr, cmpl_date, score1, site, sess, score2,
+                    score3, score4, score5, score6, self_rpt, conv_exam_no
+                )
+            VALUES (
+                "{}", "{}", "0", "{}", "98", "CART", "", "0", "0", "0", "0",
+                "0", "N", "0"
+            )
+        '''.format(ctgry, studentID, NOW)
         do_sql(sql, key=DEBUG, earl=EARL)
     else:
         retVal = {'stat':'failed', 'exam':ctgry, 'studentID':studentID}
@@ -202,7 +262,7 @@ def removefromexamrec(request):
     '''.format( studentID)
     nameSQL = do_sql(sql
 , key=DEBUG, earl=EARL)
-    stuName=""
+    stuName=''
     for name in nameSQL:
         stuName = name.firstname + " " + name.lastname
 
@@ -219,5 +279,5 @@ def removefromexamrec(request):
     }
 
     return HttpResponse(
-        json.dumps(retVal), content_type="text/plain; charset=utf-8"
+        json.dumps(retVal), content_type='text/plain; charset=utf-8'
     )
