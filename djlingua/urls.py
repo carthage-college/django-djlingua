@@ -1,36 +1,37 @@
-from django.conf.urls import include, url
+# -*- coding: utf-8 -*-
+
+from django.urls import include
+from django.urls import path
 from django.views.generic import TemplateView
 
 from djlingua.students import views
 
 
 urlpatterns = [
-    url(
-        r'^students/getstudentexams',
-        views.getstudentexams, name='getstudentexams'
+    path('students/getstudentexams/',
+        views.getstudentexams,
+        name='getstudentexams',
     ),
-    url(
-        r'^students/searchwithincourse',
-        views.getjquerystudents, name='getjquerystudents'
+    path(
+        'students/searchwithincourse/',
+        views.getjquerystudents,
+        name='getjquerystudents',
     ),
-    url(
-        r'^students/addtoexamrec',
-        views.addtoexamrec, name='addtoexamrec'
+    path(
+        'students/addtoexamrec/',
+        views.addtoexamrec,
+        name='addtoexamrec',
     ),
-    url(
-        r'^students/removefromexamrec',
-        views.removefromexamrec, name='removefromexamrec'
+    path(
+        'students/removefromexamrec/',
+        views.removefromexamrec,
+        name='removefromexamrec',
     ),
-    url(
-        r'^students/prepopulate',
-        views.prepopulatestudents, name='prepopulatestudents'
+    path(
+        'students/prepopulate/',
+        views.prepopulatestudents,
+        name='prepopulatestudents',
     ),
-    url(
-        r'^students/getcourses',
-        views.getcourses, name='getcourses'
-    ),
-    url(
-        r'^$',
-        TemplateView.as_view(template_name='home.html')
-    )
+    path('students/getcourses/', views.getcourses, name='getcourses'),
+    path('', TemplateView.as_view(template_name='home.html')),
 ]
