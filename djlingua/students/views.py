@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import logging
 
 from django.conf import settings
 from django.shortcuts import render
@@ -10,8 +11,7 @@ from django.http import HttpResponse
 from djimix.core.database import get_connection
 from djimix.core.database import xsql
 
-
-DEBUG=settings.INFORMIX_DEBUG
+logger = logging.getLogger(__name__)
 
 
 def _is_cid(instance):
@@ -96,7 +96,8 @@ def getjquerystudents(request):
         int(currentYear),
         int(currentYear + 1),
     )
-
+    if settings.DEBUG:
+        logger.debug(sqlByIdNumAndName)
     with get_connection() as connection:
         students = xsql(sqlByIdNumAndName, connection).fetchall()
 
@@ -113,6 +114,8 @@ def getcourses(request):
         WHERE
             lbl1 = "PLACEMENT" order by exam
     """
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         courses = xsql(sql, connection).fetchall()
 
@@ -148,6 +151,8 @@ def getstudentexams(request):
             id_rec.id = "{0}"
     """.format(cid)
 
+    if settings.DEBUG:
+        logger.debug(sqlExamsForStudent)
     with get_connection() as connection:
         exams = xsql(sqlExamsForStudent, connection).fetchall()
 
@@ -161,8 +166,10 @@ def getstudentexams(request):
         ORDER BY
             exam
     """
+    if settings.DEBUG:
+        logger.debug(sqlAllExams)
     with get_connection() as connection:
-        exams = xsql(sqlAllExams, connection).fetchall()
+        allexams = xsql(sqlAllExams, connection).fetchall()
 
     return render(
         request,
@@ -193,6 +200,8 @@ def prepopulatestudents(request):
         ORDER BY
             id_rec.lastname DESC, id_rec.firstname DESC
     """.format(query)
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         students = xsql(sql, connection).fetchall()
 
@@ -224,6 +233,8 @@ def addtoexamrec(request):
             ctgry MATCHES "{1}[0-9][0-9][0-9]"
     """.format(cid, ctgryFirst)
 
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         duplicates = xsql(sql, connection).fetchall()
     numRows = 0
@@ -233,7 +244,8 @@ def addtoexamrec(request):
         duplicateCtgry = dupe.ctgry
 
     if numRows == 0:
-        now = str(datetime.datetime.now().strftime('%m/%d/%Y'))
+        #now = str(datetime.datetime.now().strftime('%m/%d/%Y'))
+        now = str(datetime.datetime.now().strftime('%Y-%m-%d'))
         retVal = {
             'stat': 'success',
             'exam': ctgry,
@@ -247,12 +259,14 @@ def addtoexamrec(request):
                     score3, score4, score5, score6, self_rpt, conv_exam_no
                 )
             VALUES (
-                "{0}", "{1}", "0", "{2}", "98", "CART", "", "0", "0", "0", "0",
+                "{0}", "{1}", "0", TODAY, "98", "CART", "", "0", "0", "0", "0",
                 "0", "N", "0"
             )
-        """.format(ctgry, cid, now)
+        """.format(ctgry, cid)
+        if settings.DEBUG:
+            logger.debug(sql)
         with get_connection() as connection:
-            duplicates = xsql(sql, connection).fetchall()
+            xsql(sql, connection)
     else:
         retVal = {'stat': 'failed', 'exam': ctgry, 'studentID': cid}
     return HttpResponse(
@@ -267,8 +281,10 @@ def removefromexamrec(request):
     panel = request.POST.get('panel', '')
 
     sql = """
-        DELETE FROM exam_rec WHERE id='{0}' AND ctgry='{0}'
+        DELETE FROM exam_rec WHERE id='{0}' AND ctgry='{1}'
     """.format(cid, courseCode)
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         xsql(sql, connection)
 
@@ -280,6 +296,8 @@ def removefromexamrec(request):
         WHERE
             id_rec.id = "{0}"
     """.format(cid)
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         nameSQL = xsql(sql, connection).fetchall()
     stuName = ''
@@ -289,6 +307,8 @@ def removefromexamrec(request):
     sql = """
         SELECT txt FROM exam_table WHERE exam = "{0}"
     """.format(courseCode)
+    if settings.DEBUG:
+        logger.debug(sql)
     with get_connection() as connection:
         courseNames = xsql(sql, connection).fetchall()
     courseName = ''

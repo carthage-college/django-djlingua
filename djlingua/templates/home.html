@@ -4,6 +4,7 @@
     <div class="header">Search for student by ID</div>
     <div id="studentsearch">
       <form id="searchByStudent">
+        {% csrf_token %}
         <div id="studentSearchForm">
             <h2 id="searchTitle">Enter student's ID number</h2>
             <input type="text" id="student" value="" />
@@ -15,6 +16,7 @@
     </div>
     <div class="header">Browse by placement exams</div>
     <form id="listByExam">
+        {% csrf_token %}
         <input type="hidden" name="selectedExam" id="selectedExam" value="" />
         <div id="examlist">
             <h2>Select placement exam:</h2>

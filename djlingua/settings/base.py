@@ -138,7 +138,7 @@ LOGIN_REDIRECT_URL = ROOT_URL
 USE_X_FORWARDED_HOST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_DOMAIN = '.carthage.edu'
-SESSION_COOKIE_NAME = 'django_djtwilio_cookie'
+SESSION_COOKIE_NAME = 'django_djlingua_cookie'
 SESSION_COOKIE_AGE = 1209600  # default, two weeks
 # SMTP settings
 EMAIL_HOST = ''
@@ -202,7 +202,6 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
             'include_html': True,
             'class': 'django.utils.log.AdminEmailHandler',
         },
@@ -238,17 +237,12 @@ LOGGING = {
             'filename': ERROR_LOG_FILENAME,
             'formatter': 'verbose',
         },
-        'djtwilio': {
+        'djlingua': {
             'handlers': ['logfile'],
             'propagate': True,
             'level': 'DEBUG',
         },
-        'djtwilio.apps.sms': {
-            'handlers': ['logfile'],
-            'propagate': True,
-            'level': 'DEBUG',
-        },
-        'djtwilio.core': {
+        'djlingua.students': {
             'handlers': ['logfile'],
             'propagate': True,
             'level': 'DEBUG',

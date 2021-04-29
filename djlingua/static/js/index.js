@@ -3,7 +3,7 @@ $(document).ready(function() {
     $( "#container").accordion({ active:false, header:'div.header', fillSpace:false, clearStyle:true, collapsible:true });
 
     // generate the list of placement exams from informix (displayed in the "Browse by placement exams" panel of the accordion)
-    $.get('/exams/students/getcourses', function(result) {
+    $.get('/exams/students/getcourses/', function(result) {
         $("#courseSelection p").after(result);
     });
 
@@ -12,22 +12,27 @@ $(document).ready(function() {
 });
 
 function loadSearchResults() {
-   $.post("/exams/students/getstudentexams",
-      {
-        student: $("#student").val()
-      },
-      //callback after search
-      function(data,status){
-        //place search result markup onto the page
-        $("#studentSearchResuts").html(data).css({"margin-left": "300px"});
-        //attach event handler to button for adding exam_rec for current student
-        $("#addExamButton").click(function(){
-            saveExam($("#selectedStudent1").val(), $("#selectedExam1").val(),"searchByStudent");
-        });
-        $(".examname input").click(function(){
-            deleteExam($("#selectedStudent1").val(), $(this).next(":hidden").val(), "searchByStudent");
-        });
-   });
+  console.log($("#student").val());
+  $.post(
+    '/exams/students/getstudentexams/',
+    {
+        'student': $("#student").val(),
+        'csrfmiddlewaretoken': $csrfToken
+
+    },
+    //callback after search
+    function(data, status){
+      //place search result markup onto the page
+      $("#studentSearchResuts").html(data).css({"margin-left": "300px"});
+      //attach event handler to button for adding exam_rec for current student
+      $("#addExamButton").click(function(){
+        saveExam($("#selectedStudent1").val(), $("#selectedExam1").val(),"searchByStudent");
+      });
+      $(".examname input").click(function(){
+        deleteExam($("#selectedStudent1").val(), $(this).next(":hidden").val(), "searchByStudent");
+      });
+    }
+  );
 }
 
 function selectCourse(course,code) {
@@ -55,11 +60,11 @@ function selectCourse(course,code) {
 function makeFieldPrepopulate(code) {
     //get the students credited with passing the selected exam
     $.ajax({
-        url:'/exams/students/prepopulate?q=' + code,
+        url:'/exams/students/prepopulate/?q=' + code,
         type:'GET',
         dataType:"json",
         success: function(item) {
-            $("#studentTextField").tokenInput('/exams/students/searchwithincourse', {
+            $("#studentTextField").tokenInput('/exams/students/searchwithincourse/', {
                 preventDuplicates:true,
                 noResultsText:"Could not find student",
                 searchingText:"Searching students...",
@@ -81,12 +86,13 @@ function makeFieldPrepopulate(code) {
 function saveExam(student, exam, panel) {
     $.ajax({
         type: 'POST',
-        url:'/exams/students/addtoexamrec',
+        url:'/exams/students/addtoexamrec/',
         dataType: "json",
         data: {
-            student: student,
-            courseCode: exam,
-            panel: panel
+            'csrfmiddlewaretoken': $csrfToken,
+            'student': student,
+            'courseCode': exam,
+            'panel': panel
         },
         success: function(data) {
             var msg = data.stat == 'success' ? 'Exam record added for ' + data.studentID + ' (' + data.exam + ')' : 'Unable to add record for ' + data.studentID + '. Placement exam record already exists.';
@@ -109,11 +115,12 @@ function deleteExam(student, exam, panel) {
     $.ajax({
         type: 'POST',
         dataType:'json',
-        url:'/exams/students/removefromexamrec',
+        url:'/exams/students/removefromexamrec/',
         data: {
-            studentID: student,
-            classCode: exam,
-            panel: panel
+            'csrfmiddlewaretoken': $csrfToken,
+            'studentID': student,
+            'classCode': exam,
+            'panel': panel
         },
         success: function(data) {
             $("#notice").text(data.studentName + "'s exam was removed from \'" + data.className + "\'").show().delay(2000).fadeOut(function() {$(this).text('');});
