@@ -3,7 +3,7 @@ $(document).ready(function() {
     $( "#container").accordion({ active:false, header:'div.header', fillSpace:false, clearStyle:true, collapsible:true });
 
     // generate the list of placement exams from informix (displayed in the "Browse by placement exams" panel of the accordion)
-    $.get('/exams/students/getcourses/', function(result) {
+    $.get('/djlingua/students/getcourses/', function(result) {
         $("#courseSelection p").after(result);
     });
 
@@ -14,7 +14,7 @@ $(document).ready(function() {
 function loadSearchResults() {
   console.log($("#student").val());
   $.post(
-    '/exams/students/getstudentexams/',
+    '/djlingua/students/getstudentexams/',
     {
         'student': $("#student").val(),
         'csrfmiddlewaretoken': $csrfToken
@@ -60,11 +60,11 @@ function selectCourse(course,code) {
 function makeFieldPrepopulate(code) {
     //get the students credited with passing the selected exam
     $.ajax({
-        url:'/exams/students/prepopulate/?q=' + code,
+        url:'/djlingua/students/prepopulate/?q=' + code,
         type:'GET',
         dataType:"json",
         success: function(item) {
-            $("#studentTextField").tokenInput('/exams/students/searchwithincourse/', {
+            $("#studentTextField").tokenInput('/djlingua/students/searchwithincourse/', {
                 preventDuplicates:true,
                 noResultsText:"Could not find student",
                 searchingText:"Searching students...",
@@ -86,7 +86,7 @@ function makeFieldPrepopulate(code) {
 function saveExam(student, exam, panel) {
     $.ajax({
         type: 'POST',
-        url:'/exams/students/addtoexamrec/',
+        url:'/djlingua/students/addtoexamrec/',
         dataType: "json",
         data: {
             'csrfmiddlewaretoken': $csrfToken,
@@ -115,7 +115,7 @@ function deleteExam(student, exam, panel) {
     $.ajax({
         type: 'POST',
         dataType:'json',
-        url:'/exams/students/removefromexamrec/',
+        url:'/djlingua/students/removefromexamrec/',
         data: {
             'csrfmiddlewaretoken': $csrfToken,
             'studentID': student,
