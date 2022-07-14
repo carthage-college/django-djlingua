@@ -1,4 +1,4 @@
-django==3.2.13
+django==3.2.14
 python-ldap>=3.4.0
 pyodbc>=4.0.32
 requests>=2.27.1
